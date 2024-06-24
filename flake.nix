@@ -20,6 +20,8 @@
               go 
               golangci-lint
               gofumpt 
+              golines
+              nodePackages_latest.prettier
             ];
             shellHook = ''
             zsh
