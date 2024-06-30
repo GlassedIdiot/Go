@@ -1,4 +1,4 @@
-package main
+package steganography
 
 import (
 	"fmt"
@@ -31,14 +31,13 @@ func ValidatePNG(file *os.File) {
 	}
 }
 
-func main() {
-	file, err := OpenPNGfile()
-	if err != nil {
-		fmt.Println("Error opening file:", err)
-		return
-	}
-	defer file.Close()
-
-	ValidatePNG(file)
-}
-
+// func main() {
+// 	file, err := OpenPNGfile()
+// 	if err != nil {
+// 		fmt.Println("Error opening file:", err)
+// 		return
+// 	}
+// 	defer file.Close()
+//
+// 	ValidatePNG(file)
+// }
