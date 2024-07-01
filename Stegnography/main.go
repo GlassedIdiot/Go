@@ -23,12 +23,12 @@ func main() {
 	defer file.Close()
 
 	// Preprocess the file to get a bytes.Reader
-	bReader, err := steganography.PreProcessing(file)
+	bReader, err := Steganography.PreProcessing(file)
 	if err != nil {
 		log.Fatalf("Preprocessing failed: %v", err)
 	}
 
-	header := &steganography.Header{}
+	header := &Steganography.Header{}
 
 	// Validate the PNG header
 	header.ValidatePNG(bReader)

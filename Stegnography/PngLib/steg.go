@@ -1,4 +1,4 @@
-package steganography
+package Steganography
 
 import (
 	"bufio"
@@ -92,6 +92,38 @@ func (mc *MetaChunk) ParsePNG(b *bytes.Reader, c *models.CmdLineOpts) {
 		fmt.Printf("Type of data:%s\n", mc.Chk.Data)
 		fmt.Printf("Chunk CRC = %x\n", mc.Chk.CRC)
 
+		// Gonna create some helper functions to read each Chunk Type.
+	}
+}
+
+func (mc *MetaChunk) ReadChunk(b *bytes.Reader) {
+	mc.ReadSize(b)
+	mc.ReadType(b)
+	mc.ReadChunkBytes(b)
+	mc.ReadCRC(b)
+}
+
+func (mc *MetaChunk) ReadSize(b *bytes.Reader) {
+	if err := binary.Read(b, binary.BigEndian, &mc.Chk.size); err != nil {
+		ErrorCheck(err)
+	}
+}
+
+func (mc *MetaChunk) ReadType(b *bytes.Reader) {
+	if err := binary.Read(b, binary.BigEndian, &mc.Chk.Type); err != nil {
+		ErrorCheck(err)
+	}
+}
+
+func (mc *MetaChunk) ReadChunkBytes(b *bytes.Reader) {
+	if err := binary.Read(b, binary.BigEndian, &mc.Chk.Data); err != nil {
+		ErrorCheck(err)
+	}
+}
+
+func (mc *MetaChunk) ReadCRC(b *bytes.Reader) {
+	if err := binary.Read(b, binary.BigEndian, &mc.Chk.CRC); err != nil {
+		ErrorCheck(err)
 	}
 }
 
