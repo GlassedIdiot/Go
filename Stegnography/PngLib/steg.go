@@ -59,7 +59,8 @@ func PreProcessing(file *os.File) (*bytes.Reader, error) {
 // My idea for this to validate. Read only the first 4bytes using a for loop append to a byte slice and then use the docs example to validate. Will do it later.
 // [x]My idea for this to validate. Read only the first 4bytes using a for loop append to a byte slice and then use the docs example to validate. Will do it later.Did this works well.
 
-func (head *Header) ValidatePNG(breader *bytes.Reader) {
+func (mc *MetaChunk) ValidatePNG(breader *bytes.Reader) {
+	var head Header
 	if err := binary.Read(breader, binary.BigEndian, &head.Header); err != nil {
 		log.Fatal(err)
 	}
@@ -87,11 +88,13 @@ func (mc *MetaChunk) ParsePNG(b *bytes.Reader, c *models.CmdLineOpts) {
 
 		fmt.Println("---- Chunk # " + strconv.Itoa(count) + " ----")
 
+		mc.ReadChunk(b)
 		fmt.Printf("Chunks-Offset=%d\n", mc.Offset)
 		fmt.Printf("Length=%d\n", mc.Chk.size)
-		fmt.Printf("Type of data:%s\n", mc.Chk.Data)
+		fmt.Printf("Type of data:%d\n", mc.Chk.Type)
 		fmt.Printf("Chunk CRC = %x\n", mc.Chk.CRC)
 
+		count++
 		// Gonna create some helper functions to read each Chunk Type.
 	}
 }

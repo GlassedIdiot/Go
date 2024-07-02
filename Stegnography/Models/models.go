@@ -7,4 +7,7 @@ type CmdLineOpts struct {
 	Inject  bool
 	Encode  bool
 	Decode  bool
+	Meta    bool
+	Key     string
+	Offset  string
 }

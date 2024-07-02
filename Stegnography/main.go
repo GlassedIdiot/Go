@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"hats/Stegnography/PngLib"
+	"hats/Stegnography/utils"
 	"log"
 	"os"
 )
@@ -28,8 +29,14 @@ func main() {
 		log.Fatalf("Preprocessing failed: %v", err)
 	}
 
-	header := &Steganography.Header{}
-
+	meta_Cnk := &Steganography.MetaChunk{}
 	// Validate the PNG header
-	header.ValidatePNG(bReader)
+	meta_Cnk.ValidatePNG(bReader)
+	// meta_Cnk.ParsePNG(bReader, nil)
+
+	payload := []byte("fmhy.net")
+	xorkey := "Hello"
+
+	fmt.Print(payload)
+	utils.EncodeDecode(payload, xorkey)
 }
