@@ -5,6 +5,7 @@ type CmdLineOpts struct {
 	Output  string
 	Payload string
 	Inject  bool
+	Type    string
 	Encode  bool
 	Decode  bool
 	Meta    bool

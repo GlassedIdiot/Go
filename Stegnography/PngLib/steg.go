@@ -5,7 +5,9 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"hats/Stegnography/Models"
+	"hash/crc32"
+	models "hats/Stegnography/Models"
+	"hats/Stegnography/utils"
 	"log"
 	"os"
 	"strconv"
@@ -99,6 +101,32 @@ func (mc *MetaChunk) ParsePNG(b *bytes.Reader, c *models.CmdLineOpts) {
 	}
 }
 
+func (mc *MetaChunk) ProcessImage_Payload(b *bytes.Reader, c *models.CmdLineOpts) {
+	// Now how shall we write the pay load will do the encoding part later.
+	// -[x] Adding simple payload delivery.
+	//-[ ] Add the encoding part for writing the payload.
+
+	var m MetaChunk
+
+	m.Chk.size = mc.CreateChunkSize()
+
+	Temp, err := strconv.ParseUint(c.Type, 10, 32)
+	if err != nil {
+		ErrorCheck(err)
+	}
+	m.Chk.Type = uint32(Temp)
+
+	m.Chk.Data = []byte(c.Payload)
+
+	m.Chk.CRC = mc.CreateCRCcheck()
+
+	bm := mc.marshalData()
+	bmb := bm.Bytes()
+	fmt.Printf("Payload Original: % X\n", []byte(c.Payload))
+	fmt.Printf("Payload: % X\n", m.Chk.Data)
+	utils.WritePayload(b, c, bmb)
+}
+
 func (mc *MetaChunk) ReadChunk(b *bytes.Reader) {
 	mc.ReadSize(b)
 	mc.ReadType(b)
@@ -136,4 +164,40 @@ func (mc *MetaChunk) FindingOffset(b *bytes.Reader) {
 	checkErr(err)
 
 	mc.Offset = offset
+}
+
+func (mc *MetaChunk) CreateChunkSize() uint32 {
+	return uint32(len(mc.Chk.Data))
+}
+
+func (mc *MetaChunk) CreateCRCcheck() uint32 {
+	bytesLSB := new(bytes.Buffer)
+
+	if err := binary.Write(bytesLSB, binary.BigEndian, mc.Chk.Type); err != nil {
+		ErrorCheck(err)
+	}
+
+	if err := binary.Write(bytesLSB, binary.BigEndian, mc.Chk.Data); err != nil {
+		ErrorCheck(err)
+	}
+
+	return crc32.ChecksumIEEE(bytesLSB.Bytes())
+}
+
+func (mc *MetaChunk) marshalData() *bytes.Buffer {
+	bytesMSB := new(bytes.Buffer)
+	if err := binary.Write(bytesMSB, binary.BigEndian, mc.Chk.size); err != nil {
+		log.Fatal(err)
+	}
+	if err := binary.Write(bytesMSB, binary.BigEndian, mc.Chk.Type); err != nil {
+		log.Fatal(err)
+	}
+	if err := binary.Write(bytesMSB, binary.BigEndian, mc.Chk.Data); err != nil {
+		log.Fatal(err)
+	}
+	if err := binary.Write(bytesMSB, binary.BigEndian, mc.Chk.CRC); err != nil {
+		log.Fatal(err)
+	}
+
+	return bytesMSB
 }
