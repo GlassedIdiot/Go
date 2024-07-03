@@ -34,9 +34,16 @@ func main() {
 	meta_Cnk.ValidatePNG(bReader)
 	// meta_Cnk.ParsePNG(bReader, nil)
 
-	payload := []byte("fmhy.net")
-	xorkey := "Hello"
+	payload := []byte("fmhy.net,goland.net,blackchair")
+	xorkey := "findme"
 
-	fmt.Print(payload)
-	utils.EncodeDecode(payload, xorkey)
+	fmt.Printf("%s\n", payload)
+
+	something := utils.XorEncode(payload, xorkey)
+
+	fmt.Printf("%s\n", something)
+
+	something_test := utils.XorDecode(something, xorkey)
+
+	fmt.Printf("%s\n", something_test)
 }

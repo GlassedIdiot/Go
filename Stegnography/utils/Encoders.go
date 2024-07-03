@@ -1,18 +1,19 @@
 package utils
 
-import "fmt"
-
-func EncodeDecode(payload []byte, xorkey string) []byte {
-	de_byte := make([]byte, len(xorkey))
-
-	for i := 0; i < len(xorkey); i++ {
-		de_byte[i] = payload[i] ^ xorkey[i%len(xorkey)]
+func EncodeDecode(payload []byte, key string) []byte {
+	de_bytes := make([]byte, len(payload))
+	for i := 0; i < len(payload); i++ {
+		de_bytes[i] = payload[i] ^ key[i%len(key)]
 	}
+	return de_bytes
+}
 
-	fmt.Printf(
-		"The encoded payload as a bytes array is: %d.\nThe Payload encoded as a string is: %s\n",
-		de_byte,
-		de_byte,
-	)
-	return nil
+// XorEncode returns encoded byte array
+func XorEncode(Decode []byte, key string) []byte {
+	return EncodeDecode(Decode, key)
+}
+
+// XorDecode returns decoded byte array
+func XorDecode(Encode []byte, key string) []byte {
+	return EncodeDecode(Encode, key)
 }
