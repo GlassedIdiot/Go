@@ -28,6 +28,7 @@ func Openfolder() {
 		if !d.IsDir() {
 			// Read the file contents
 
+			println(path)
 			//Encryption(path)
 			Decryption(path)
 		}
@@ -40,14 +41,12 @@ func Encryption(test_file string) ([]byte, error) {
 
 	key := "TestingKey"
 
-	_, err := os.ReadFile(test_file)
+	file_content, err := os.ReadFile(test_file)
 
 	if err != nil {
 		helper.Error(err)
 	}
-	fmt.Printf("%s\n", test_file)
-
-	fmt.Printf("%s", test_file)
+	fmt.Printf("%s\n and the size of this file is %d", file_content, len(file_content))
 
 	aesBlock, err := aes.NewCipher([]byte(mdHashing(string(key))))
 	helper.Error(err)
@@ -59,14 +58,14 @@ func Encryption(test_file string) ([]byte, error) {
 	nonce := make([]byte, gcmInstance.NonceSize())
 	_, _ = io.ReadFull(rand.Reader, nonce)
 
-	ciphered_text := gcmInstance.Seal(nonce, nonce, []byte(test_file), nil)
+	ciphered_text := gcmInstance.Seal(nonce, nonce, []byte(file_content), nil)
 
-	fmt.Printf("%s", ciphered_text)
+	fmt.Printf("\n%s", ciphered_text)
 
 	err = os.WriteFile(test_file, ciphered_text, 0644)
 
 	helper.Error(err)
-	return ciphered_text, nil
+	return nil, nil
 }
 
 func Decryption(ciphered_file string) ([]byte, error) {
@@ -85,19 +84,26 @@ func Decryption(ciphered_file string) ([]byte, error) {
 
 	NonceSize := gcmInstance.NonceSize()
 
-	// Make sure the encrypted data is large enough to contain the nonce
 	if len(encryptedData) < NonceSize {
 		return nil, fmt.Errorf("ciphertext too short")
 	}
 
-	// Extract nonce and ciphertext from the encrypted data
-	nonce, ciphered_Data := encryptedData[:NonceSize], encryptedData[NonceSize:]
+	// Properly separate nonce and ciphertext
+	nonce := encryptedData[:NonceSize]
+	ciphertext := encryptedData[NonceSize:] // This line was missing
 
-	// Decrypt the data
-	original_file, err := gcmInstance.Open(nil, nonce, ciphered_Data, nil)
+	// Decrypt the data using the correct ciphertext portion
+	original_data, err := gcmInstance.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return nil, fmt.Errorf("decryption failed: %v", err)
+	}
 
-	err = os.WriteFile(ciphered_file, original_file, 0644)
+	// Write the decrypted data back to file
+	err = os.WriteFile(ciphered_file, original_data, 0644)
 	helper.Error(err)
 
-	return original_file, nil
+	// Print the decrypted data
+	fmt.Printf("Decrypted content: %s\n", string(original_data))
+
+	return original_data, nil
 }
