@@ -11,7 +11,10 @@ import (
 	"os"
 	"path/filepath"
 	helper "rango/src/Helper"
+	"strings"
 )
+
+const ENCRYPTED_MARKER = "ENCRYPTED"
 
 func mdHashing(input string) string {
 	byteInput := []byte(input)
@@ -39,14 +42,22 @@ func Openfolder() {
 
 func Encryption(test_file string) ([]byte, error) {
 
-	key := "TestingKey"
+	//Gonna check if the file is already encrypted
+	if strings.HasPrefix(test_file, ENCRYPTED_MARKER) {
+		fmt.Print("The file is already encrypted")
+		return nil, nil
+
+	}
+
+	key := helper.GenerateCryptoRandom("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", 32)
 
 	file_content, err := os.ReadFile(test_file)
+	extension := filepath.Ext(test_file)
 
 	if err != nil {
 		helper.Error(err)
 	}
-	fmt.Printf("%s\n and the size of this file is %d", file_content, len(file_content))
+	fmt.Printf("%s is the type of this file", extension)
 
 	aesBlock, err := aes.NewCipher([]byte(mdHashing(string(key))))
 	helper.Error(err)
@@ -60,16 +71,15 @@ func Encryption(test_file string) ([]byte, error) {
 
 	ciphered_text := gcmInstance.Seal(nonce, nonce, []byte(file_content), nil)
 
-	fmt.Printf("\n%s", ciphered_text)
-
 	err = os.WriteFile(test_file, ciphered_text, 0644)
 
-	helper.Error(err)
 	return nil, nil
 }
 
 func Decryption(ciphered_file string) ([]byte, error) {
-	key := "TestingKey"
+	key := helper.GenerateCryptoRandom("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", 32)
+	// Now I gotta find a way to use the previous key to decrypt the file
+
 	// Read the encrypted data from file
 	encryptedData, err := os.ReadFile(ciphered_file)
 	if err != nil {
@@ -101,9 +111,6 @@ func Decryption(ciphered_file string) ([]byte, error) {
 	// Write the decrypted data back to file
 	err = os.WriteFile(ciphered_file, original_data, 0644)
 	helper.Error(err)
-
-	// Print the decrypted data
-	fmt.Printf("Decrypted content: %s\n", string(original_data))
 
 	return original_data, nil
 }
