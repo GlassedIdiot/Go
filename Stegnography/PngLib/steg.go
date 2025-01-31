@@ -6,10 +6,10 @@ import (
 	"encoding/binary"
 	"fmt"
 	"hash/crc32"
-	models "hats/Stegnography/Models"
 	"hats/Stegnography/utils"
 	"log"
 	"os"
+	models "rango/src/Stegnography/Models"
 	"strconv"
 )
 

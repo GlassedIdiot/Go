@@ -27,7 +27,11 @@ func main() {
 		var decryptOpt string
 		fmt.Scanln(&decryptOpt)
 		if decryptOpt == "y" || decryptOpt == "yes" {
-			_, decErr := rango.Decryption()
+
+			fmt.Print("Enter the decryption key: ")
+			var key string
+			fmt.Scanln(&key)
+			_, decErr := rango.Decryption(key)
 			if decErr != nil {
 				fmt.Println("Error decrypting files:", decErr)
 			} else {

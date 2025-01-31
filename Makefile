@@ -9,7 +9,7 @@ all: build
 
 # Build the binary
 build:
-	$(GO) build -o $(BINARY_NAME) $(SRC_DIR)
+	$(GO) build main.go -o $(BINARY_NAME).exe
 
 # Run the binary
 run: 
