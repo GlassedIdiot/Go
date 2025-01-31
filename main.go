@@ -5,5 +5,6 @@ import rango "rango/src"
 
 func main() {
 	//rango.Encryption()
-	rango.Openfolder()
+	rango.Decryption()
+
 }
