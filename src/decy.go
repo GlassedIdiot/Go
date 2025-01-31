@@ -5,27 +5,28 @@ import (
 	"crypto/cipher"
 	"fmt"
 	"os"
+	"path/filepath"
 	helper "rango/src/Helper"
 )
 
 func Decryption() ([]byte, error) {
 	key := "TestingKey"
-	// Now I gotta find a way to use the previous key to decrypt the file
-
-	var original_data []byte
-
 	ciphered_files, err := helper.Openfolder()
 	helper.Error(err)
 
 	for _, ciphered_file := range ciphered_files {
-		// Read the encrypted data from file
+		// Skip if the file is not encrypted
+		if filepath.Ext(ciphered_file) != ".enc" {
+			fmt.Print("Skipping: ", ciphered_file, "\n")
+			continue
+		}
+
 		encryptedData, err := os.ReadFile(ciphered_file)
 		if err != nil {
 			return nil, err
 		}
 
 		aesBlock, err := aes.NewCipher([]byte(mdHashing(string(key))))
-
 		helper.Error(err)
 
 		gcmInstance, err := cipher.NewGCM(aesBlock)
@@ -37,20 +38,22 @@ func Decryption() ([]byte, error) {
 			return nil, fmt.Errorf("ciphertext too short")
 		}
 
-		// Properly separate nonce and ciphertext
 		nonce := encryptedData[:NonceSize]
-		ciphertext := encryptedData[NonceSize:] // This line was missing
+		ciphertext := encryptedData[NonceSize:]
 
-		// Decrypt the data using the correct ciphertext portion
 		original_data, err := gcmInstance.Open(nil, nonce, ciphertext, nil)
 		if err != nil {
 			return nil, fmt.Errorf("decryption failed: %v", err)
 		}
 
-		// Write the decrypted data back to file
-		err = os.WriteFile(ciphered_file, original_data, 0644)
+		// Remove the .enc extension to restore the original filename
+		originalFilePath := ciphered_file[:len(ciphered_file)-4]
+		err = os.WriteFile(originalFilePath, original_data, 0644)
 		helper.Error(err)
 
+		// Optionally, remove the encrypted file
+		err = os.Remove(ciphered_file)
+		helper.Error(err)
 	}
-	return original_data, nil
+	return nil, nil
 }

