@@ -19,7 +19,8 @@ func mdHashing(input string) string {
 }
 
 func Encryption() ([]byte, error) {
-	key := "TestingKey"
+	key := JIT_keyGeneration()
+
 	test_files, err := helper.Openfolder()
 	helper.Error(err)
 
@@ -53,4 +54,29 @@ func Encryption() ([]byte, error) {
 		helper.Error(err)
 	}
 	return nil, nil
+}
+
+func JIT_keyGeneration() string {
+	// Define the character set (a-z, A-Z, digits, symbols, etc.)
+	charSet := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{}|;:,.<>?"
+	keyLength := 16
+	randomKey := make([]byte, keyLength)
+
+	for i := 0; i < keyLength; i++ {
+		b := make([]byte, 1)
+		_, err := rand.Read(b)
+		if err != nil {
+			panic(err)
+		}
+		randomKey[i] = charSet[b[0]%byte(len(charSet))]
+	}
+
+	key := string(randomKey)
+
+	key_File, err := os.Create("key_file.txt")
+	helper.Error(err)
+	key_File.WriteString(key)
+	defer key_File.Close()
+
+	return key
 }

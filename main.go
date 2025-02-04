@@ -34,8 +34,6 @@ func main() {
 			_, decErr := rango.Decryption(key)
 			if decErr != nil {
 				fmt.Println("Error decrypting files:", decErr)
-			} else {
-				fmt.Println("Files decrypted successfully.")
 			}
 		}
 	} else {

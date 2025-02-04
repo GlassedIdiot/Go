@@ -10,8 +10,9 @@ import (
 )
 
 func Decryption(key string) ([]byte, error) {
-
-	if key == "testingkey" {
+	real_key, err := os.ReadFile("key_file.txt")
+	helper.Error(err)
+	if key == string(real_key) {
 		fmt.Println("Key is correct")
 
 		ciphered_files, err := helper.Openfolder()
@@ -60,7 +61,7 @@ func Decryption(key string) ([]byte, error) {
 		}
 	} else {
 		fmt.Println("Key is incorrect")
-		return nil, nil
+		os.Exit(1)
 	}
 	return nil, nil
 }
