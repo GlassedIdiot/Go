@@ -1,10 +1,12 @@
 package helper
 
 import (
-	"crypto/rand"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/joho/godotenv"
 )
 
 func Error(err error) {
@@ -13,30 +15,26 @@ func Error(err error) {
 		log.Fatal(err)
 	}
 }
-func GenerateCryptoRandom(chars string, length int32) string {
-	bytes := make([]byte, length)
-	rand.Read(bytes)
 
-	for index, element := range bytes {
-		randomize := element % byte(len(chars))
-		bytes[index] = chars[randomize]
-	}
-	return string(bytes)
-}
 func Openfolder() ([]string, error) {
+	// Load variables from .env file
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Printf("Error loading .env file: %v", err)
+	}
+
 	files := []string{}
-	err := filepath.WalkDir("D:\\Shit\\Go\\Test_folder", func(path string, d os.DirEntry, err error) error {
+	folderPath := os.Getenv("TEST_FOLDER_PATH")
+	fmt.Printf("Folder Path: %s\n", folderPath)
+	err = filepath.WalkDir(folderPath, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
-			return err
+			log.Fatal("WalkDir error:", err)
 		}
 
 		// Only process if it's not a directory
 		if !d.IsDir() {
-			// Read the file contents
-
-			println(path)
+			fmt.Println(path)
 			files = append(files, path)
-
 		}
 		return nil
 	})
